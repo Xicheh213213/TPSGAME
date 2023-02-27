@@ -25,7 +25,7 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
-	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
+	//FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
 private:
 	/** Top down camera */
@@ -37,8 +37,8 @@ private:
 	class USpringArmComponent* CameraBoom;
 
 	/** A decal that projects to the cursor location. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UDecalComponent* CursorToWorld;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	//class UDecalComponent* CursorToWorld;
 
 
 public:
@@ -46,6 +46,10 @@ public:
 		EMovementState MovementState = EMovementState::Run_State;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		FCharacterSpeed MovementInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+		UMaterialInterface* CursorMaterial = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+		FVector CursorSize = FVector(20.f, 40.f, 40.f);
 
 	UFUNCTION()
 		void InputAxisY(float Value);
@@ -63,6 +67,9 @@ public:
 		void ChangeMovementState(EMovementState NewMovementState);
 	UPROPERTY()
 		int MovementIndex = 0;
-	
+	UFUNCTION(BlueprintCallable)
+		void InitWeapon();
+	UFUNCTION(BlueprintCallable)
+		UDecalComponent* GetCursorToWorld();
 };
 
