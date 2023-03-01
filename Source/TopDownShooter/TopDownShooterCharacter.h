@@ -11,12 +11,14 @@ UCLASS(Blueprintable)
 class ATopDownShooterCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
+protected:
+	virtual void BeginPlay() override;
 public:
 	ATopDownShooterCharacter();
 
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
+	
 	// позволяет переопределить любые кнопки.
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputConponent) override;
 
@@ -55,7 +57,7 @@ public:
 		void InputAxisY(float Value);
 	UFUNCTION()
 		void InputAxisX(float Value);
-	 
+	UDecalComponent* CurrentCursor = nullptr;
 	float AxisX = 0.0f;
 	float AxisY = 0.0f;
 //TickFunction
@@ -71,5 +73,6 @@ public:
 		void InitWeapon();
 	UFUNCTION(BlueprintCallable)
 		UDecalComponent* GetCursorToWorld();
+
 };
 

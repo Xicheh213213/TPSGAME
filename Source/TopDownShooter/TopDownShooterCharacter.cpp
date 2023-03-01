@@ -43,7 +43,7 @@ ATopDownShooterCharacter::ATopDownShooterCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Create a decal in the world to show the cursor's location
+	 //Create a decal in the world to show the cursor's location
 	//CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
 	//CursorToWorld->SetupAttachment(RootComponent);
 	//static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterialAsset(TEXT("Material'/Game/TopDownCPP/Blueprints/M_Cursor_Decal.M_Cursor_Decal'"));
@@ -63,30 +63,30 @@ void ATopDownShooterCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-	//if (CursorToWorld != nullptr)
+	//if (CurrentCursor != nullptr)
 	//{
 	//	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
 	//	{
 	//		if (UWorld* World = GetWorld())
-				//		{
+	//				{
 	//			FHitResult HitResult;
 	//			FCollisionQueryParams Params(NAME_None, FCollisionQueryParams::GetUnknownStatId());
 	//			FVector StartLocation = TopDownCameraComponent->GetComponentLocation();
-	//			FVector EndLocation = TopDownCameraComponent->GetComponentRotation().Vector() * 2000.0f;
-				//			Params.AddIgnoredActor(this);
-	//			World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
-	//			FQuat SurfaceRotation = HitResult.ImpactNormal.ToOrientationRotator().Quaternion();
-	//			CursorToWorld->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
+	//		FVector EndLocation = TopDownCameraComponent->GetComponentRotation().Vector() * 2000.0f;
+	//					Params.AddIgnoredActor(this);
+	//		World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
+	//		FQuat SurfaceRotation = HitResult.ImpactNormal.ToOrientationRotator().Quaternion();
+	//		CurrentCursor->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
 	//		}
 	//	}
 	//	else if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	//	{
 	//		FHitResult TraceHitResult;
-			//		PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+	//				PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
 	//		FVector CursorFV = TraceHitResult.ImpactNormal;
 	//		FRotator CursorR = CursorFV.Rotation();
-	//		CursorToWorld->SetWorldLocation(TraceHitResult.Location);
-	//		CursorToWorld->SetWorldRotation(CursorR);
+	//		CurrentCursor->SetWorldLocation(TraceHitResult.Location);
+	//		CurrentCursor->SetWorldRotation(CursorR);
 	//	}
 	//}
 	if(CurrentCursor)
@@ -99,7 +99,7 @@ void ATopDownShooterCharacter::Tick(float DeltaSeconds)
 			FVector CursorFV = TraceHitResult.ImpactNormal;
 			FRotator CursorR = CursorFV.Rotation();
 			CurrentCursor->SetWorldLocation(TraceHitResult.Location);
-			CurrentCursor->SetWordRotation(CursorR);
+			CurrentCursor->SetWorldRotation(CursorR);
 
 		}
 	}
@@ -108,10 +108,12 @@ void ATopDownShooterCharacter::Tick(float DeltaSeconds)
 void ATopDownShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	InitWeapon();
-	if(CursorMaterial)
+
+	if (CursorMaterial)
 	{
-		CurrentCursor = UGamePlayStatics::SpawnDecalAtLocation(GetWorld(), CursorMaterial, CursorSize, FVector(0)); 
+		CurrentCursor = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), CursorMaterial, CursorSize, FVector(0));
 	}
 }
 
@@ -144,9 +146,11 @@ void ATopDownShooterCharacter::MovementTick(float Deltatime)
 		if (myController)
 		{
 			FHitResult ResultHit;
-			myController->GetHitResultUnderCursor(ECC_GameTraceChannel1, false, ResultHit);
-			float FindRotatorResult = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
-			SetActorRotation(FQuat(FRotator(0.0f, FindRotatorResult, 0.0f)));
+			//myController->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery6, false, ResultHit);// bug was here Config\DefaultEngine.Ini
+			myController->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
+
+			float FindRotaterResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
+			SetActorRotation(FQuat(FRotator(0.0f, FindRotaterResultYaw, 0.0f)));
 		}
 	}
 }
@@ -191,7 +195,7 @@ void ATopDownShooterCharacter::InitWeapon()
 
 UDecalComponent* ATopDownShooterCharacter::GetCursorToWorld()
 {
-	return nullptr;
+	return CurrentCursor;
 }
 
 
