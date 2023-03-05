@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Types.h"
+#include "WeaponDefault.h"
 #include "TopDownShooterCharacter.generated.h"
 
 UCLASS(Blueprintable)
@@ -52,12 +53,14 @@ public:
 		UMaterialInterface* CursorMaterial = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 		FVector CursorSize = FVector(20.f, 40.f, 40.f);
-
+	AWeaponDefault* CurrentWeapon = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Demo")
+		TSubclassOf<AWeaponDefault> InitWeaponClass = nullptr;
+	UDecalComponent* CurrentCursor = nullptr;
 	UFUNCTION()
 		void InputAxisY(float Value);
 	UFUNCTION()
 		void InputAxisX(float Value);
-	UDecalComponent* CurrentCursor = nullptr;
 	float AxisX = 0.0f;
 	float AxisY = 0.0f;
 //TickFunction
@@ -69,6 +72,9 @@ public:
 		void ChangeMovementState(EMovementState NewMovementState);
 	UPROPERTY()
 		int MovementIndex = 0;
+
+	UFUNCTION(BlueprintCallable)
+		AWeaponDefault* GetCurrentWeapon();
 	UFUNCTION(BlueprintCallable)
 		void InitWeapon();
 	UFUNCTION(BlueprintCallable)
