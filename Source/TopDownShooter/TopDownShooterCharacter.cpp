@@ -109,7 +109,6 @@ void ATopDownShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitWeapon();
 
 	if (CursorMaterial)
 	{
@@ -122,8 +121,6 @@ void ATopDownShooterCharacter::SetupPlayerInputComponent(UInputComponent* NewInp
 	Super::SetupPlayerInputComponent(NewInputComponent);
 	NewInputComponent->BindAxis(TEXT("MoveForward"), this, &ATopDownShooterCharacter::InputAxisX);
 	NewInputComponent->BindAxis(TEXT("MoveRight"), this, &ATopDownShooterCharacter::InputAxisY);
-	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Pressed, this, &ATopDownShooterCharacter::InputAttackPressed);
-	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATopDownShooterCharacter::InputAttackReleased);
 }
 
 void ATopDownShooterCharacter::InputAxisY(float Value)
@@ -134,15 +131,6 @@ void ATopDownShooterCharacter::InputAxisY(float Value)
 void ATopDownShooterCharacter::InputAxisX(float Value)
 {
 	AxisX = Value;
-}
-void ATopDownShooterCharacter::InputAttackPressed()
-{
-	AttackCharEvent(true);
-}
-
-void ATopDownShooterCharacter::InputAttackReleased()
-{
-	AttackCharEvent(false);
 }
 
 void ATopDownShooterCharacter::MovementTick(float Deltatime)
@@ -162,18 +150,6 @@ void ATopDownShooterCharacter::MovementTick(float Deltatime)
 			SetActorRotation(FQuat(FRotator(0.0f, FindRotaterResultYaw, 0.0f)));
 		}
 	}
-}
-void ATopDownShooterCharacter::AttackCharEvent(bool bIsFiring)
-{
-	AWeaponDefault* myWeapon = nullptr;
-	myWeapon = GetCurrentWeapon();
-	if (myWeapon)
-	{
-		//ToDo Check melee or range
-		myWeapon->SetWeaponStateFire(bIsFiring);
-	}
-	else
-		UE_LOG(LogTemp, Warning, TEXT("ATPSCharacter::AttackCharEvent - CurrentWeapon -NULL"));
 }
 
 
@@ -203,52 +179,16 @@ void ATopDownShooterCharacter::CharacterUpdate()
 	}
 	GetCharacterMovement()->MaxWalkSpeed = ResSpeed;
 }
-
 void ATopDownShooterCharacter::ChangeMovementState(EMovementState NewMovementState)
 {
 	MovementState = NewMovementState;
 	CharacterUpdate();
-	//Weapon state update
-	AWeaponDefault* myWeapon = GetCurrentWeapon();
-	if (myWeapon)
-	{
-		myWeapon->UpdateStateWeapon(MovementState);
-	}
+
 }
-
-
-AWeaponDefault* ATopDownShooterCharacter::GetCurrentWeapon()
-{
-	return CurrentWeapon;
-}
-
-void ATopDownShooterCharacter::InitWeapon()
-{
-	if (InitWeaponClass)
-	{
-		FVector SpawnLocation = FVector(0);
-		FRotator SpawnRotation = FRotator(0);
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Owner = GetOwner();
-		SpawnParams.Instigator = GetInstigator();
-
-		AWeaponDefault* myWeapon = Cast<AWeaponDefault>(GetWorld()->SpawnActor(InitWeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
-		if (myWeapon)
-		{
-			FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
-			myWeapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
-			CurrentWeapon = myWeapon;
-
-			myWeapon->UpdateStateWeapon(MovementState);
-		}
-	}
-}
-
 UDecalComponent* ATopDownShooterCharacter::GetCursorToWorld()
 {
 	return CurrentCursor;
 }
+
 
 
